@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import { initAdmin } from '@/lib/firebase-admin';
 import crypto from 'crypto';
 
+// --- NEW: Handle Browser Visits (GET) ---
+// This lets you open the link in Chrome to verify the server is running
+export async function GET() {
+    return NextResponse.json({
+        status: "online",
+        message: "Printify Webhook Listener is active and waiting for POST events."
+    });
+}
+
+// --- EXISTING: Handle Printify Events (POST) ---
 export async function POST(req: Request) {
     console.log("--- WEBHOOK RECEIVED ---");
 
@@ -11,8 +21,12 @@ export async function POST(req: Request) {
         const secret = process.env.PRINTIFY_WEBHOOK_SECRET;
 
         // 1. Debug Logs (Check Vercel Logs to see these)
-        console.log("Secret Exists:", !!secret);
-        console.log("Signature Header:", signature);
+        console.log("Secret Configured:", !!secret);
+
+        // If you are testing via Postman without a signature, this helps debug
+        if (!signature) {
+            console.log("⚠️ No signature found in headers");
+        }
 
         if (!secret || !signature) {
             console.error("❌ Missing Secret or Signature");
@@ -49,8 +63,11 @@ export async function POST(req: Request) {
                 const adminApp = await initAdmin();
                 const adminDb = adminApp.firestore();
 
-                const defaultImage = resource.images.find((img: any) => img.is_default)?.src || resource.images[0]?.src;
+                // Printify sends cents, we convert to dollars
                 const price = resource.variants[0]?.price ? resource.variants[0].price / 100 : 0;
+
+                // Handle image logic
+                const defaultImage = resource.images.find((img: any) => img.is_default)?.src || resource.images[0]?.src;
 
                 await adminDb.collection("products").doc(resource.id).set({
                     id: resource.id,
@@ -68,7 +85,6 @@ export async function POST(req: Request) {
                 console.log("✅ SUCCESS: Product saved to Firestore");
             } catch (dbError) {
                 console.error("❌ FIREBASE ERROR:", dbError);
-                // We catch the error but return 200 so Printify stops retrying
                 return NextResponse.json({ success: false, error: "Database Error" });
             }
 
@@ -79,7 +95,7 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error("❌ CRITICAL WEBHOOK ERROR:", error);
-        // Return 200 to stop the "Publishing..." loop on Printify, but log the error for you
+        // Return 200 to stop Printify from retrying indefinitely
         return NextResponse.json({ success: false, error: "Internal Error" }, { status: 200 });
     }
 }
