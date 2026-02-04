@@ -1,64 +1,65 @@
-"use client";
-
-import Image from "next/image";
 import Link from "next/link";
-import { PrintifyProduct } from "@/lib/types";
-import { motion } from "framer-motion";
+import Image from "next/image"; // Import the optimizer
+import AddToCart from "./AddToCart";
 
-interface ProductCardProps {
-    product: PrintifyProduct;
-    index: number;
+interface Product {
+    id: string;
+    title: string;
+    price: number;
+    image: string;
+    variants?: any[]; // Keep flexible for now
 }
 
-export default function ProductCard({ product, index }: ProductCardProps) {
-    // Find the default variant price (usually the first one)
-    const price = product.variants[0]?.price || 0;
-    // Convert cents to dollars/cedis (Printify returns cents)
-    const formattedPrice = (price / 100).toFixed(2);
-
-    // Get the default image (usually checks for is_default, or takes first)
-    const imageSrc = product.images.find(img => img.position === "front")?.src || product.images[0]?.src;
+export default function ProductCard({ product }: { product: Product }) {
+    // Ensure we have a valid image URL, fallback if missing
+    const imageUrl = product.image || "https://placehold.co/400";
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true }}
-            className="group relative block"
-        >
-            <Link href={`/product/${product.id}`}>
-                <div className="relative aspect-[3/4] overflow-hidden rounded-sm border-2 border-retro-denim/20 bg-white transition-all duration-300 hover:border-retro-mustard hover:shadow-[4px_4px_0px_0px_rgba(217,180,106,1)]">
-
-                    {/* Image */}
-                    <div className="absolute inset-0 bg-retro-cream/10 z-10 opacity-0 group-hover:opacity-20 transition-opacity" />
+        <div className="group relative">
+            <Link href={`/product/${product.id}`} className="block">
+                {/* Image Container with Aspect Ratio */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100 border-2 border-retro-denim rounded-sm">
                     <Image
-                        src={imageSrc}
+                        src={imageUrl}
                         alt={product.title}
-                        fill
-                        className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                        fill // Automatically fills the container
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        priority={false} // Lazy load
                     />
 
-                    {/* Quick Add Overlay (Optional, visually nice) */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-white/90 backdrop-blur-sm z-20 border-t border-retro-denim/10">
-                        <p className="text-center font-bold text-retro-denim text-sm">VIEW DETAILS</p>
+                    {/* Overlay Badge */}
+                    <div className="absolute top-2 left-2 bg-retro-mustard text-retro-ink text-[10px] font-bold px-2 py-1 uppercase tracking-widest border border-retro-ink">
+                        New
                     </div>
                 </div>
 
-                {/* Product Info */}
+                {/* Product Details */}
                 <div className="mt-4 flex justify-between items-start">
                     <div>
-                        <h3 className="text-lg font-medium text-retro-ink group-hover:text-retro-terracotta transition-colors">
+                        <h3 className="text-lg font-bold text-retro-ink group-hover:text-retro-terracotta transition-colors line-clamp-1">
                             {product.title}
                         </h3>
-                        <p className="mt-1 text-sm text-gray-500">Unisex / Cotton</p>
+                        <p className="mt-1 text-sm text-retro-denim font-medium">
+                            ${product.price.toFixed(2)}
+                        </p>
                     </div>
-                    <p className="text-lg font-bold text-retro-denim">
-                        ${formattedPrice}
-                    </p>
                 </div>
             </Link>
-        </motion.div>
+
+            {/* Add To Cart (Passed proper variant info if available) */}
+            <div className="mt-4">
+                <AddToCart
+                    product={{
+                        id: product.id,
+                        variantId: product.variants?.[0]?.id || 0, // Fallback safely
+                        title: product.title,
+                        price: product.price,
+                        image: imageUrl,
+                        size: "L" // Default for quick add
+                    }}
+                />
+            </div>
+        </div>
     );
 }

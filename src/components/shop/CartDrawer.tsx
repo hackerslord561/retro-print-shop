@@ -6,6 +6,7 @@ import { X, Minus, Plus, Trash2, Lock } from "lucide-react";
 import axios from "axios";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import Image from "next/image";
 
 // --- DYNAMIC IMPORT ---
 import dynamic from "next/dynamic";
@@ -167,11 +168,14 @@ export default function CartDrawer() {
                             <div className="space-y-6">
                                 {items.map((item) => (
                                     <div key={`${item.id}-${item.size}`} className="flex gap-4">
-                                        <div className="h-24 w-24 bg-white border border-retro-cream-dark rounded-sm flex-shrink-0 relative overflow-hidden">
-                                            <img
-                                                src={item.image}
+                                        <div
+                                            className="h-24 w-24 bg-white border border-retro-cream-dark rounded-sm flex-shrink-0 relative overflow-hidden">
+                                            <Image
+                                                src={item.image || "https://placehold.co/100"}
                                                 alt={item.title}
-                                                className="object-contain w-full h-full p-1"
+                                                fill
+                                                className="object-contain p-1"
+                                                sizes="96px"
                                             />
                                         </div>
 
@@ -182,20 +186,22 @@ export default function CartDrawer() {
                                             </div>
 
                                             <div className="flex items-center justify-between mt-2">
-                                                <div className="flex items-center border border-retro-cream-dark rounded-sm bg-white">
+                                                <div
+                                                    className="flex items-center border border-retro-cream-dark rounded-sm bg-white">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                                         className="p-1 hover:bg-retro-denim hover:text-white transition-colors"
                                                         disabled={item.quantity <= 1}
                                                     >
-                                                        <Minus className="w-3 h-3" />
+                                                        <Minus className="w-3 h-3"/>
                                                     </button>
-                                                    <span className="px-3 text-xs font-bold text-retro-ink">{item.quantity}</span>
+                                                    <span
+                                                        className="px-3 text-xs font-bold text-retro-ink">{item.quantity}</span>
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                         className="p-1 hover:bg-retro-denim hover:text-white transition-colors"
                                                     >
-                                                        <Plus className="w-3 h-3" />
+                                                        <Plus className="w-3 h-3"/>
                                                     </button>
                                                 </div>
 
@@ -207,7 +213,7 @@ export default function CartDrawer() {
                                                         onClick={() => removeItem(item.id)}
                                                         className="text-gray-400 hover:text-red-500 transition-colors"
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
+                                                        <Trash2 className="w-4 h-4"/>
                                                     </button>
                                                 </div>
                                             </div>
