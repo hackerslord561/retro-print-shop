@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    /* --- 1. YOUR FADED RETRO PALETTE --- */
+    --color-retro-cream: #F4F1EA;
+    --color-retro-cream-dark: #E6E2D6;
+    --color-retro-denim: #4A6C8C;
+    --color-retro-denim-light: #6B8CA8;
+    --color-retro-mustard: #D9B46A;
+    --color-retro-mustard-hover: #C49F58;
+    --color-retro-terracotta: #D48C70;
+    --color-retro-charcoal: #2D2D2D;
+    --color-retro-ink: #1A1A1A;
+
+    /* --- 2. FONTS --- */
+    --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    --font-heading: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+
+    /* --- 3. ANIMATIONS --- */
+    --animate-fade-in: fadeIn 0.5s ease-out forwards;
+    --animate-slide-up: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* --- 4. SHADCN COLOR MAPPING (THE FIX) --- */
+    /* This tells Tailwind to create utility classes for these variables */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+}
+
+/* --- 5. VARIABLE VALUES --- */
+:root {
+    /* Base Retro Colors mapped to Shadcn Variables */
+    --background: var(--color-retro-cream);
+    --foreground: var(--color-retro-ink);
+
+    --card: #ffffff;
+    --card-foreground: var(--color-retro-ink);
+
+    --popover: #ffffff;
+    --popover-foreground: var(--color-retro-ink);
+
+    --primary: var(--color-retro-denim);
+    --primary-foreground: var(--color-retro-cream);
+
+    --secondary: var(--color-retro-cream-dark);
+    --secondary-foreground: var(--color-retro-ink);
+
+    --muted: var(--color-retro-cream-dark);
+    --muted-foreground: #64748b;
+
+    --accent: var(--color-retro-cream-dark);
+    --accent-foreground: var(--color-retro-ink);
+
+    --destructive: var(--color-retro-terracotta);
+    --destructive-foreground: var(--color-retro-cream);
+
+    --border: var(--color-retro-cream-dark);
+    --input: var(--color-retro-cream-dark);
+    --ring: var(--color-retro-denim);
+
+    --radius: 0.5rem;
+}
+
+.dark {
+    --background: var(--color-retro-charcoal);
+    --foreground: var(--color-retro-cream);
+    --card: var(--color-retro-ink);
+    --card-foreground: var(--color-retro-cream);
+    --popover: var(--color-retro-ink);
+    --popover-foreground: var(--color-retro-cream);
+    --primary: var(--color-retro-mustard);
+    --primary-foreground: var(--color-retro-charcoal);
+    --secondary: var(--color-retro-denim);
+    --secondary-foreground: var(--color-retro-cream);
+    --muted: var(--color-retro-ink);
+    --muted-foreground: #94a3b8;
+    --accent: var(--color-retro-ink);
+    --accent-foreground: var(--color-retro-cream);
+    --destructive: #7f1d1d;
+    --destructive-foreground: var(--color-retro-cream);
+    --border: var(--color-retro-ink);
+    --input: var(--color-retro-ink);
+    --ring: var(--color-retro-mustard);
+}
+
+/* --- 6. UTILITIES --- */
+@layer base {
+    *, ::after, ::before {
+        box-sizing: border-box;
+        /* Use standard CSS here to be safe, or now @apply will work */
+        border-color: var(--border);
+    }
+
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-heading);
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+}
