@@ -33,6 +33,7 @@ ts-debug.log*
 .env.production.local
 *.env
 *.env.*
+get-shops.js
 
 # Firebase
 .firebase/
