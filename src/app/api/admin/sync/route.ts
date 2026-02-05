@@ -5,49 +5,64 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        console.log("--- STARTING SMART SYNC ---");
+        console.log("--- STARTING FULL INVENTORY SYNC ---");
 
         const SHOP_ID = process.env.PRINTIFY_SHOP_ID;
         const TOKEN = process.env.PRINTIFY_API_TOKEN;
 
-        // 1. Debug Config
         if (!SHOP_ID || !TOKEN) {
-            return NextResponse.json({
-                error: "Missing Config",
-                details: "Check .env.local for PRINTIFY_SHOP_ID and PRINTIFY_API_TOKEN"
-            }, { status: 500 });
+            return NextResponse.json({ error: "Missing Config" }, { status: 500 });
         }
 
-        // 2. Fetch Products
-        const response = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products.json?limit=100`, {
-            headers: {
-                'Authorization': `Bearer ${TOKEN}`,
-                'Content-Type': 'application/json'
+        // --- 1. PAGINATION LOOP ---
+        // We fetch pages until we have all products
+        let allProducts: any[] = [];
+        let currentPage = 1;
+        let lastPage = 1;
+
+        do {
+            console.log(`Fetching Page ${currentPage}...`);
+
+            const response = await fetch(
+                `https://api.printify.com/v1/shops/${SHOP_ID}/products.json?limit=50&page=${currentPage}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Printify API Error on Page ${currentPage}: ${errorText}`);
             }
-        });
 
-        // 3. Catch & Show Specific Printify Error
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("❌ PRINTIFY ERROR:", response.status, errorText);
-            return NextResponse.json({
-                error: "Printify API Failed",
-                status: response.status,
-                details: errorText
-            }, { status: response.status });
-        }
+            const output = await response.json();
 
-        const output = await response.json();
-        const products = output.data;
+            // Add this page's products to our master list
+            allProducts = [...allProducts, ...output.data];
 
-        // 4. Initialize Firebase Admin
+            // Update loop variables
+            lastPage = output.last_page;
+            currentPage++;
+
+        } while (currentPage <= lastPage);
+
+        console.log(`✅ Fetched total of ${allProducts.length} products.`);
+
+        // --- 2. BATCH SAVE TO FIREBASE ---
         const adminApp = await initAdmin();
         const adminDb = adminApp.firestore();
         const batch = adminDb.batch();
 
+        // Note: Firestore batches have a limit of 500 operations.
+        // Since you have ~99 products, one batch is fine.
+        // If you grow past 500, we'd need to split this part too.
+
         let count = 0;
 
-        for (const product of products) {
+        for (const product of allProducts) {
             const docRef = adminDb.collection("products").doc(product.id);
 
             const defaultVariant = product.variants[0];
@@ -57,17 +72,15 @@ export async function GET() {
             const defaultImageObj = product.images.find((img: any) => img.is_default) || product.images[0];
             const defaultImage = defaultImageObj ? defaultImageObj.src : "";
 
-            // --- SMART CATEGORIZATION ---
+            // Smart Categorization
             const tags = product.tags || [];
 
-            // Guess "Brand"
             let brand = "Generic";
             if (product.title.includes("Gildan")) brand = "Gildan";
             else if (product.title.includes("Bella+Canvas")) brand = "Bella+Canvas";
             else if (product.title.includes("Champion")) brand = "Champion";
             else if (product.title.includes("Comfort Colors")) brand = "Comfort Colors";
 
-            // Guess "Category"
             let category = "Accessories";
             const lowerTitle = product.title.toLowerCase();
             if (tags.includes("T-shirt") || lowerTitle.includes("tee") || lowerTitle.includes("t-shirt")) category = "T-shirts";
@@ -99,7 +112,7 @@ export async function GET() {
         return NextResponse.json({
             success: true,
             count: count,
-            message: "Smart Sync complete! Brands and Categories updated."
+            message: `Successfully synced ${count} products from ${lastPage} pages.`
         });
 
     } catch (error: any) {
