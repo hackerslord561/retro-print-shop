@@ -16,17 +16,22 @@ export default function ProductCard({ product }: { product: Product }) {
     return (
         <div className="group relative">
             <Link href={`/product/${product.id}`} className="block">
-                {/* Changed background color here to darker gray */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-200/80 border-2 border-retro-denim rounded-sm">
+
+                {/* UPDATES:
+           1. bg-gray-300: Much darker than before (was gray-100 or 200).
+           2. REMOVED 'mix-blend-multiply': This prevents white shirts from turning transparent.
+        */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-300 border-2 border-retro-denim rounded-sm">
                     <Image
                         src={imageUrl}
                         alt={product.title}
                         fill
-                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105 mix-blend-multiply"
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         priority={false}
                     />
 
+                    {/* New Badge */}
                     <div className="absolute top-2 left-2 bg-retro-mustard text-retro-ink text-[10px] font-bold px-2 py-1 uppercase tracking-widest border border-retro-ink">
                         New
                     </div>

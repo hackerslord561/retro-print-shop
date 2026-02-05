@@ -17,16 +17,20 @@ export default function ValentinesTheme() {
     }, []);
 
     return (
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-            {/* Side Borders with static hearts */}
-            <div className="absolute top-0 left-0 w-2 h-full bg-pink-100/50 hidden md:block" />
-            <div className="absolute top-0 right-0 w-2 h-full bg-pink-100/50 hidden md:block" />
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+            {/* 1. CHANGED z-0 to z-50: Now it sits ON TOP of the white background.
+          2. pointer-events-none: Ensures users can click "through" the hearts to the buttons below.
+      */}
+
+            {/* Side Borders */}
+            <div className="absolute top-0 left-0 w-2 h-full bg-pink-500/20 hidden md:block" />
+            <div className="absolute top-0 right-0 w-2 h-full bg-pink-500/20 hidden md:block" />
 
             {/* Floating Hearts */}
             {hearts.map((heart) => (
                 <div
                     key={heart.id}
-                    className="absolute bottom-0 text-pink-300/40 animate-float"
+                    className="absolute bottom-0 text-pink-400/60 animate-float"
                     style={{
                         left: `${heart.left}%`,
                         animationDelay: `${heart.delay}s`,
