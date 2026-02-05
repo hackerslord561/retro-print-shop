@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image"; // Import the optimizer
+import Image from "next/image";
 import AddToCart from "./AddToCart";
 
 interface Product {
@@ -7,34 +7,31 @@ interface Product {
     title: string;
     price: number;
     image: string;
-    variants?: any[]; // Keep flexible for now
+    variants?: any[];
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-    // Ensure we have a valid image URL, fallback if missing
     const imageUrl = product.image || "https://placehold.co/400";
 
     return (
         <div className="group relative">
             <Link href={`/product/${product.id}`} className="block">
-                {/* Image Container with Aspect Ratio */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-100 border-2 border-retro-denim rounded-sm">
+                {/* Changed background color here to darker gray */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-200/80 border-2 border-retro-denim rounded-sm">
                     <Image
                         src={imageUrl}
                         alt={product.title}
-                        fill // Automatically fills the container
-                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105 mix-blend-multiply"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        priority={false} // Lazy load
+                        priority={false}
                     />
 
-                    {/* Overlay Badge */}
                     <div className="absolute top-2 left-2 bg-retro-mustard text-retro-ink text-[10px] font-bold px-2 py-1 uppercase tracking-widest border border-retro-ink">
                         New
                     </div>
                 </div>
 
-                {/* Product Details */}
                 <div className="mt-4 flex justify-between items-start">
                     <div>
                         <h3 className="text-lg font-bold text-retro-ink group-hover:text-retro-terracotta transition-colors line-clamp-1">
@@ -47,16 +44,15 @@ export default function ProductCard({ product }: { product: Product }) {
                 </div>
             </Link>
 
-            {/* Add To Cart (Passed proper variant info if available) */}
             <div className="mt-4">
                 <AddToCart
                     product={{
                         id: product.id,
-                        variantId: product.variants?.[0]?.id || 0, // Fallback safely
+                        variantId: product.variants?.[0]?.id || 0,
                         title: product.title,
                         price: product.price,
                         image: imageUrl,
-                        size: "L" // Default for quick add
+                        size: "L"
                     }}
                 />
             </div>

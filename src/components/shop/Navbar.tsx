@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Search, Menu, X, Shirt } from "lucide-react";
+import { ShoppingBag, Search, Shirt } from "lucide-react";
 import { useCart } from "@/lib/store/cart";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -34,7 +34,7 @@ export default function Navbar() {
                     </div>
                     <div>
                         <h1 className="text-2xl font-black text-retro-ink tracking-tighter leading-none">
-                            VINTAGE
+                            OMNI VINTAGE
                         </h1>
                         <p className="text-[10px] font-bold text-retro-denim tracking-[0.3em] uppercase">
                             EST. 2026
@@ -42,7 +42,7 @@ export default function Navbar() {
                     </div>
                 </Link>
 
-                {/* Search Bar (Hidden on small mobile, visible on md+) */}
+                {/* Search Bar (Hidden on small mobile) */}
                 <form onSubmit={handleSearch} className="flex-1 max-w-md hidden md:flex relative">
                     <input
                         type="text"
@@ -84,7 +84,7 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Mobile Search Bar (Visible only on small screens) */}
+            {/* Mobile Search Bar */}
             <div className="w-full mt-4 md:hidden">
                 <form onSubmit={handleSearch} className="relative">
                     <input
