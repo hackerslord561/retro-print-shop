@@ -1,40 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { useCart } from "@/lib/store/cart";
 import { ShoppingBag, Check } from "lucide-react";
-import { useState } from "react";
 
-// Update this interface to match what ProductView sends
-interface Product {
+interface ProductToAdd {
     id: string;
-    variantId: number; // <--- Added this
+    variantId: number;
     title: string;
     price: number;
     image: string;
-    size: string;      // <--- Added this
+    size: string;
 }
 
-export default function AddToCart({ product }: { product: Product }) {
-    const addItem = useCart((state) => state.addItem);
-    const toggleCart = useCart((state) => state.toggleCart);
+export default function AddToCart({ product }: { product: ProductToAdd }) {
+    const { addItem } = useCart();
     const [isAdded, setIsAdded] = useState(false);
 
     const handleAdd = () => {
-        // Pass all the specific details to the global store
-        addItem({
-            id: product.id,
-            variantId: product.variantId, // Crucial for Printify
-            title: product.title,
-            price: product.price,
-            image: product.image,
-            quantity: 1,
-            size: product.size
-        });
-
+        addItem({ ...product, quantity: 1 });
         setIsAdded(true);
-        toggleCart(); // Automatically open the drawer
-
-        // Reset the button visual state after 2 seconds
         setTimeout(() => setIsAdded(false), 2000);
     };
 
@@ -43,22 +28,25 @@ export default function AddToCart({ product }: { product: Product }) {
             onClick={handleAdd}
             disabled={isAdded}
             className={`
-        w-full py-4 px-8 rounded-sm font-bold tracking-wider flex items-center justify-center gap-2 transition-all duration-200 shadow-md hover:shadow-lg
+        w-full flex items-center justify-center gap-2 font-black uppercase tracking-wider transition-all duration-300 rounded-sm border-2
+        /* MOBILE STYLES (Default): Smaller text, tighter padding */
+        text-xs py-2 px-4 
+        /* DESKTOP STYLES (md:): Larger text, comfortable padding */
+        md:text-sm md:py-3 md:px-6
+        
         ${isAdded
-                ? "bg-green-600 text-white scale-[0.98]"
-                : "bg-retro-denim text-white hover:bg-retro-ink hover:-translate-y-0.5"
+                ? "bg-green-600 text-white border-green-600"
+                : "bg-retro-ink text-white border-retro-ink hover:bg-retro-terracotta hover:border-retro-terracotta"
             }
       `}
         >
             {isAdded ? (
                 <>
-                    <Check className="w-5 h-5" />
-                    ADDED
+                    <Check className="w-4 h-4" /> Added
                 </>
             ) : (
                 <>
-                    <ShoppingBag className="w-5 h-5" />
-                    ADD TO CART
+                    <ShoppingBag className="w-4 h-4" /> Add to Cart
                 </>
             )}
         </button>

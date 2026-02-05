@@ -3,7 +3,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-    /* --- 1. YOUR FADED RETRO PALETTE --- */
+    /* --- 1. YOUR PALETTE --- */
     --color-retro-cream: #F4F1EA;
     --color-retro-cream-dark: #E6E2D6;
     --color-retro-denim: #4A6C8C;
@@ -18,10 +18,9 @@
     --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
     --font-heading: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
 
-    /* --- 3. ANIMATIONS (NOW INCLUDING FLOAT) --- */
+    /* --- 3. STANDARD ANIMATIONS --- */
     --animate-fade-in: fadeIn 0.5s ease-out forwards;
     --animate-slide-up: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    --animate-float: float 15s linear infinite;
 
     @keyframes fadeIn {
         from { opacity: 0; }
@@ -33,14 +32,7 @@
         to { transform: translateY(0); opacity: 1; }
     }
 
-    @keyframes float {
-        0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
-    }
-
-    /* --- 4. SHADCN COLOR MAPPING --- */
+    /* --- 4. SHADCN COLORS --- */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
@@ -62,37 +54,27 @@
     --color-ring: var(--ring);
 }
 
-/* --- 5. VARIABLE VALUES --- */
+/* --- 5. VARIABLES --- */
 :root {
-    /* Base Retro Colors mapped to Shadcn Variables */
     --background: var(--color-retro-cream);
     --foreground: var(--color-retro-ink);
-
     --card: #ffffff;
     --card-foreground: var(--color-retro-ink);
-
     --popover: #ffffff;
     --popover-foreground: var(--color-retro-ink);
-
     --primary: var(--color-retro-denim);
     --primary-foreground: var(--color-retro-cream);
-
     --secondary: var(--color-retro-cream-dark);
     --secondary-foreground: var(--color-retro-ink);
-
     --muted: var(--color-retro-cream-dark);
     --muted-foreground: #64748b;
-
     --accent: var(--color-retro-cream-dark);
     --accent-foreground: var(--color-retro-ink);
-
     --destructive: var(--color-retro-terracotta);
     --destructive-foreground: var(--color-retro-cream);
-
     --border: var(--color-retro-cream-dark);
     --input: var(--color-retro-cream-dark);
     --ring: var(--color-retro-denim);
-
     --radius: 0.5rem;
 }
 
@@ -101,8 +83,6 @@
     --foreground: var(--color-retro-cream);
     --card: var(--color-retro-ink);
     --card-foreground: var(--color-retro-cream);
-    --popover: var(--color-retro-ink);
-    --popover-foreground: var(--color-retro-cream);
     --primary: var(--color-retro-mustard);
     --primary-foreground: var(--color-retro-charcoal);
     --secondary: var(--color-retro-denim);
@@ -118,28 +98,34 @@
     --ring: var(--color-retro-mustard);
 }
 
-/* --- 6. UTILITIES --- */
 @layer base {
     *, ::after, ::before {
         box-sizing: border-box;
         border-color: var(--border);
     }
-
     body {
         background-color: var(--background);
         color: var(--foreground);
         font-family: var(--font-sans);
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
 
+        /* --- MOBILE FIX: PREVENT HORIZONTAL SCROLL --- */
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+    }
     h1, h2, h3, h4, h5, h6 {
         font-family: var(--font-heading);
     }
 }
 
-@layer utilities {
-    .text-balance {
-        text-wrap: balance;
-    }
+/* --- 6. FORCED ANIMATIONS --- */
+@keyframes floatHearts {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+.animate-float {
+    animation: floatHearts 12s linear infinite;
 }
