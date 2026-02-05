@@ -17,11 +17,8 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="group relative">
             <Link href={`/product/${product.id}`} className="block">
 
-                {/* UPDATES:
-           1. bg-gray-300: Much darker than before (was gray-100 or 200).
-           2. REMOVED 'mix-blend-multiply': This prevents white shirts from turning transparent.
-        */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-300 border-2 border-retro-denim rounded-sm">
+                {/* CHANGED TO bg-gray-400: Darker gray for better white-shirt contrast */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-gray-400 border-2 border-retro-denim rounded-sm">
                     <Image
                         src={imageUrl}
                         alt={product.title}
@@ -31,7 +28,6 @@ export default function ProductCard({ product }: { product: Product }) {
                         priority={false}
                     />
 
-                    {/* New Badge */}
                     <div className="absolute top-2 left-2 bg-retro-mustard text-retro-ink text-[10px] font-bold px-2 py-1 uppercase tracking-widest border border-retro-ink">
                         New
                     </div>
