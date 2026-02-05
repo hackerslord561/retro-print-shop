@@ -1,59 +1,66 @@
 import { NextResponse } from 'next/server';
 import { initAdmin } from '@/lib/firebase-admin';
 
-// This prevents the route from caching, so it always fetches fresh data
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        console.log("--- STARTING MANUAL SYNC ---");
+        console.log("--- STARTING SMART SYNC ---");
 
-        // 1. Check Credentials
         const SHOP_ID = process.env.PRINTIFY_SHOP_ID;
         const TOKEN = process.env.PRINTIFY_API_TOKEN;
 
         if (!SHOP_ID || !TOKEN) {
-            return NextResponse.json({ error: "Missing PRINTIFY_SHOP_ID or PRINTIFY_API_TOKEN in .env" }, { status: 500 });
+            return NextResponse.json({ error: "Missing Config" }, { status: 500 });
         }
 
-        // 2. Fetch All Products from Printify
-        const response = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products.json`, {
+        // 1. Fetch Products
+        const response = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products.json?limit=100`, {
             headers: {
                 'Authorization': `Bearer ${TOKEN}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Printify API Error: ${response.status} ${errorText}`);
-        }
+        if (!response.ok) throw new Error("Printify API Failed");
 
         const output = await response.json();
-        const products = output.data; // Printify returns { current_page: 1, data: [...] }
+        const products = output.data;
 
-        if (!products || products.length === 0) {
-            return NextResponse.json({ message: "No products found in this Printify store." });
-        }
-
-        // 3. Save to Firebase (Admin Mode)
         const adminApp = await initAdmin();
         const adminDb = adminApp.firestore();
-        const batch = adminDb.batch(); // Use batch for faster writing
+        const batch = adminDb.batch();
 
         let count = 0;
 
         for (const product of products) {
             const docRef = adminDb.collection("products").doc(product.id);
 
-            // Calculate Price (Printify gives cents, we need dollars)
-            // We look for the first variant's price as a baseline
             const defaultVariant = product.variants[0];
             const price = defaultVariant ? defaultVariant.price / 100 : 0;
 
             // Find Default Image
             const defaultImageObj = product.images.find((img: any) => img.is_default) || product.images[0];
             const defaultImage = defaultImageObj ? defaultImageObj.src : "";
+
+            // --- SMART CATEGORIZATION ---
+            // We assume tags contain useful info like "T-shirt", "Mug", "Gildan", etc.
+            const tags = product.tags || [];
+
+            // Attempt to guess "Brand" from Title (common in Printify, e.g., "Gildan 5000")
+            let brand = "Generic";
+            if (product.title.includes("Gildan")) brand = "Gildan";
+            else if (product.title.includes("Bella+Canvas")) brand = "Bella+Canvas";
+            else if (product.title.includes("Champion")) brand = "Champion";
+            else if (product.title.includes("Comfort Colors")) brand = "Comfort Colors";
+
+            // Attempt to guess "Category" from Tags/Title
+            let category = "Accessories";
+            const lowerTitle = product.title.toLowerCase();
+            if (tags.includes("T-shirt") || lowerTitle.includes("tee") || lowerTitle.includes("t-shirt")) category = "T-shirts";
+            else if (tags.includes("Hoodie") || lowerTitle.includes("hoodie")) category = "Hoodies";
+            else if (tags.includes("Mug") || lowerTitle.includes("mug")) category = "Mugs";
+            else if (tags.includes("Phone Case") || lowerTitle.includes("case")) category = "Phone Cases";
 
             batch.set(docRef, {
                 id: product.id,
@@ -63,23 +70,23 @@ export async function GET() {
                 image: defaultImage,
                 images: product.images,
                 variants: product.variants,
-                tags: product.tags,
+                tags: tags,
+                brand: brand,        // NEW: For Best Sellers Page
+                category: category,  // NEW: For Carousel
+                provider: "Printify", // Placeholder, Printify API doesn't always give provider name clearly in list view
                 updatedAt: new Date(),
-                isPublished: true // We assume if it's in Printify, we want it on the site
+                isPublished: true
             });
 
             count++;
         }
 
-        // Commit the batch write
         await batch.commit();
-
-        console.log(`✅ Successfully synced ${count} products.`);
 
         return NextResponse.json({
             success: true,
             count: count,
-            message: "Sync complete! Refresh your homepage."
+            message: "Smart Sync complete! Brands and Categories updated."
         });
 
     } catch (error: any) {

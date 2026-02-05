@@ -1,6 +1,7 @@
 import Navbar from "@/components/shop/Navbar";
 import Footer from "@/components/shop/Footer";
 import CartDrawer from "@/components/shop/CartDrawer";
+import CookieConsent from "@/components/ui/CookieConsent"; // Import the new component
 
 export default function ShopLayout({
                                        children,
@@ -15,6 +16,7 @@ export default function ShopLayout({
                 {children}
             </main>
             <Footer />
+            <CookieConsent />
         </>
     );
 }

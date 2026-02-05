@@ -2,6 +2,7 @@ import { db } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import PaginatedGrid from "@/components/shop/PaginatedGrid";
 import { ArrowDown } from "lucide-react";
+import CategoryCarousel from "@/components/shop/CategoryCarousel";
 
 // Revalidate data every 60 seconds so new products appear automatically
 export const revalidate = 60;
@@ -58,6 +59,7 @@ export default async function HomePage() {
                     </a>
                 </div>
             </section>
+            <CategoryCarousel />
 
             {/* --- SHOP SECTION --- */}
             <section id="shop" className="max-w-7xl mx-auto px-6 py-20">

@@ -1,47 +1,72 @@
-import { Instagram, Twitter, Facebook } from "lucide-react";
+import Link from "next/link";
+import { Instagram, Twitter, Facebook, ArrowRight } from "lucide-react";
 
 export default function Footer() {
     return (
-        <footer className="bg-retro-ink text-retro-cream border-t-8 border-retro-terracotta py-12 px-6">
-            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <footer className="bg-retro-ink text-retro-cream pt-16 pb-8 border-t-8 border-retro-mustard">
+            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
 
-                {/* Brand */}
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight mb-4">VINTAGE STORE</h2>
-                    <p className="text-sm opacity-70 leading-relaxed">
-                        Curating the finest retro threads in Kumasi since 2026.
-                        We believe in sustainable fashion and timeless style.
+                {/* Brand Column */}
+                <div className="space-y-4">
+                    <h2 className="text-2xl font-black tracking-tight text-white">VINTAGE STORE</h2>
+                    <p className="text-sm opacity-60 leading-relaxed">
+                        Redefining retro fashion with sustainable, on-demand printing.
+                        Quality threads, timeless designs, zero waste.
                     </p>
+                    <div className="flex gap-4 pt-2">
+                        {[Instagram, Twitter, Facebook].map((Icon, i) => (
+                            <a key={i} href="#" className="p-2 bg-white/10 rounded-full hover:bg-retro-terracotta transition-colors">
+                                <Icon className="w-5 h-5 text-white" />
+                            </a>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Links */}
+                {/* Quick Links */}
                 <div>
-                    <h3 className="font-bold text-retro-mustard mb-4 tracking-widest uppercase text-sm">Shop</h3>
-                    <ul className="space-y-2 text-sm">
-                        <li><a href="#" className="hover:text-retro-terracotta transition-colors">New Arrivals</a></li>
-                        <li><a href="#" className="hover:text-retro-terracotta transition-colors">Best Sellers</a></li>
-                        <li><a href="#" className="hover:text-retro-terracotta transition-colors">Accessories</a></li>
-                        <li><a href="#" className="hover:text-retro-terracotta transition-colors">Sale</a></li>
+                    <h3 className="font-bold text-retro-mustard mb-6 tracking-widest uppercase text-xs">Shop</h3>
+                    <ul className="space-y-3 text-sm font-medium">
+                        <li><Link href="/new-arrivals" className="hover:text-retro-terracotta transition-colors">New Arrivals</Link></li>
+                        <li><Link href="/best-sellers" className="hover:text-retro-terracotta transition-colors">Best Sellers</Link></li>
+                        <li><Link href="/accessories" className="hover:text-retro-terracotta transition-colors">Accessories</Link></li>
+                        <li><Link href="/search" className="hover:text-retro-terracotta transition-colors">Search</Link></li>
                     </ul>
                 </div>
 
-                {/* Socials */}
+                {/* Customer Care */}
                 <div>
-                    <h3 className="font-bold text-retro-mustard mb-4 tracking-widest uppercase text-sm">Connect</h3>
-                    <div className="flex gap-4">
-                        <a href="#" className="p-2 bg-retro-cream text-retro-ink rounded-full hover:bg-retro-terracotta hover:text-white transition-colors">
-                            <Instagram className="w-5 h-5" />
-                        </a>
-                        <a href="#" className="p-2 bg-retro-cream text-retro-ink rounded-full hover:bg-retro-terracotta hover:text-white transition-colors">
-                            <Twitter className="w-5 h-5" />
-                        </a>
-                        <a href="#" className="p-2 bg-retro-cream text-retro-ink rounded-full hover:bg-retro-terracotta hover:text-white transition-colors">
-                            <Facebook className="w-5 h-5" />
-                        </a>
-                    </div>
-                    <p className="mt-6 text-xs opacity-50">
-                        © 2026 Hackerslord Studios. All rights reserved.
-                    </p>
+                    <h3 className="font-bold text-retro-mustard mb-6 tracking-widest uppercase text-xs">Support</h3>
+                    <ul className="space-y-3 text-sm font-medium">
+                        <li><Link href="/privacy-policy" className="hover:text-retro-terracotta transition-colors">Privacy Policy</Link></li>
+                        <li><Link href="#" className="hover:text-retro-terracotta transition-colors">Terms of Service</Link></li>
+                        <li><Link href="#" className="hover:text-retro-terracotta transition-colors">Shipping Info</Link></li>
+                        <li><Link href="#" className="hover:text-retro-terracotta transition-colors">Returns</Link></li>
+                    </ul>
+                </div>
+
+                {/* Newsletter */}
+                <div>
+                    <h3 className="font-bold text-retro-mustard mb-6 tracking-widest uppercase text-xs">Stay in the loop</h3>
+                    <p className="text-xs opacity-60 mb-4">Get 10% off your first order when you sign up.</p>
+                    <form className="flex gap-2">
+                        <input
+                            type="email"
+                            placeholder="Your email"
+                            className="bg-white/10 border-none text-white placeholder:text-white/30 text-sm rounded-sm px-4 py-2 w-full focus:ring-1 focus:ring-retro-mustard"
+                        />
+                        <button className="bg-retro-mustard text-retro-ink p-2 rounded-sm hover:bg-white transition-colors">
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-white/10 text-center md:text-left flex flex-col md:flex-row justify-between items-center text-xs opacity-40">
+                <p>© 2026 Hackerslord Studios. All rights reserved.</p>
+                <div className="flex gap-4 mt-4 md:mt-0">
+                    <span>VISA</span>
+                    <span>MASTERCARD</span>
+                    <span>PAYPAL</span>
                 </div>
             </div>
         </footer>
