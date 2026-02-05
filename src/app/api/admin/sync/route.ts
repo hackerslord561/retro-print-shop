@@ -10,11 +10,15 @@ export async function GET() {
         const SHOP_ID = process.env.PRINTIFY_SHOP_ID;
         const TOKEN = process.env.PRINTIFY_API_TOKEN;
 
+        // 1. Debug Config
         if (!SHOP_ID || !TOKEN) {
-            return NextResponse.json({ error: "Missing Config" }, { status: 500 });
+            return NextResponse.json({
+                error: "Missing Config",
+                details: "Check .env.local for PRINTIFY_SHOP_ID and PRINTIFY_API_TOKEN"
+            }, { status: 500 });
         }
 
-        // 1. Fetch Products
+        // 2. Fetch Products
         const response = await fetch(`https://api.printify.com/v1/shops/${SHOP_ID}/products.json?limit=100`, {
             headers: {
                 'Authorization': `Bearer ${TOKEN}`,
@@ -22,11 +26,21 @@ export async function GET() {
             }
         });
 
-        if (!response.ok) throw new Error("Printify API Failed");
+        // 3. Catch & Show Specific Printify Error
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("❌ PRINTIFY ERROR:", response.status, errorText);
+            return NextResponse.json({
+                error: "Printify API Failed",
+                status: response.status,
+                details: errorText
+            }, { status: response.status });
+        }
 
         const output = await response.json();
         const products = output.data;
 
+        // 4. Initialize Firebase Admin
         const adminApp = await initAdmin();
         const adminDb = adminApp.firestore();
         const batch = adminDb.batch();
@@ -44,17 +58,16 @@ export async function GET() {
             const defaultImage = defaultImageObj ? defaultImageObj.src : "";
 
             // --- SMART CATEGORIZATION ---
-            // We assume tags contain useful info like "T-shirt", "Mug", "Gildan", etc.
             const tags = product.tags || [];
 
-            // Attempt to guess "Brand" from Title (common in Printify, e.g., "Gildan 5000")
+            // Guess "Brand"
             let brand = "Generic";
             if (product.title.includes("Gildan")) brand = "Gildan";
             else if (product.title.includes("Bella+Canvas")) brand = "Bella+Canvas";
             else if (product.title.includes("Champion")) brand = "Champion";
             else if (product.title.includes("Comfort Colors")) brand = "Comfort Colors";
 
-            // Attempt to guess "Category" from Tags/Title
+            // Guess "Category"
             let category = "Accessories";
             const lowerTitle = product.title.toLowerCase();
             if (tags.includes("T-shirt") || lowerTitle.includes("tee") || lowerTitle.includes("t-shirt")) category = "T-shirts";
@@ -71,9 +84,9 @@ export async function GET() {
                 images: product.images,
                 variants: product.variants,
                 tags: tags,
-                brand: brand,        // NEW: For Best Sellers Page
-                category: category,  // NEW: For Carousel
-                provider: "Printify", // Placeholder, Printify API doesn't always give provider name clearly in list view
+                brand: brand,
+                category: category,
+                provider: "Printify",
                 updatedAt: new Date(),
                 isPublished: true
             });
